@@ -1,6 +1,4 @@
-import shutil
 import zipfile
-import shell
 from openpyxl import load_workbook
 from pypdf import PdfReader
 import xlrd
@@ -12,13 +10,12 @@ from selenium import webdriver
 from selene import browser
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from win32com.shell import shell, shellcon
 
 
 # TODO оформить в тест, добавить ассерты и использовать универсальный путь
 def test_xlsx():
-    PROJECT_ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-    workbook_path = os.path.join(PROJECT_ROOT_PATH, 'resources', 'file_example_XLSX_50.xlsx')
+    project_root_path = os.path.dirname(os.path.abspath(__file__))
+    workbook_path = os.path.join(project_root_path, 'resources', 'file_example_XLSX_50.xlsx')
     workbook = load_workbook(workbook_path)
     sheet = workbook.active
     value = sheet.cell(row=3, column=2).value
@@ -29,8 +26,8 @@ def test_xlsx():
 def test_xlsx_2():
     print(end='\n')
     print('')
-    PROJECT_ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-    workbook_path = os.path.join(PROJECT_ROOT_PATH, 'resources', 'file_example_XLS_10.xls')
+    project_root_path = os.path.dirname(os.path.abspath(__file__))
+    workbook_path = os.path.join(project_root_path, 'resources', 'file_example_XLS_10.xls')
     book = xlrd.open_workbook(workbook_path)
     print(f'Количество листов {book.nsheets}')
     print(f'Имена листов {book.sheet_names()}')
@@ -50,8 +47,8 @@ def test_xlsx_2():
 # TODO оформить в тест, добавить ассерты и использовать универсальный путь
 
 def test_pdf():
-    PROJECT_ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-    pdf_path = os.path.join(PROJECT_ROOT_PATH, 'resources', 'docs-pytest-org-en-latest.pdf')
+    project_root_path = os.path.dirname(os.path.abspath(__file__))
+    pdf_path = os.path.join(project_root_path, 'resources', 'docs-pytest-org-en-latest.pdf')
     reader = PdfReader(pdf_path)
     number_of_pages = len(reader.pages)
     page = reader.pages[0]
@@ -66,8 +63,8 @@ def test_pdf():
 
 def test_csv_file():
     # TODO оформить в тест, добавить ассерты и использовать универсальный путь
-    PROJECT_ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-    csv_path = os.path.join(PROJECT_ROOT_PATH, 'resources', 'eggs.csv')
+    project_root_path = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(project_root_path, 'resources', 'eggs.csv')
     with open(csv_path, 'w') as csvfile:
         csvwriter = csv.writer(csvfile, delimiter=',')
         csvwriter.writerow(['Anna', 'Pavel', 'Peter'])
@@ -96,11 +93,12 @@ def test_downloaded_file_size():
 
 def test_download_big_file_size():
     # TODO оформить в тест, добавить ассерты и использовать универсальный путь к tmp
-    PROJECT_ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-    download_folder = shell.SHGetKnownFolderPath(shellcon.FOLDERID_Downloads)
+    project_root_path = os.path.dirname(os.path.abspath(__file__))
+    download_folder = os.path.join(project_root_path, 'tmp')
+
     options = webdriver.ChromeOptions()
     prefs = {
-        "download.default_directory": 'download_folder',
+        "download.default_directory": download_folder,
         "download.prompt_for_download": False
     }
     options.add_experimental_option("prefs", prefs)
@@ -109,21 +107,19 @@ def test_download_big_file_size():
         service=Service(ChromeDriverManager().install()),
         options=options
     )
-
     browser.config.driver = driver
+
     browser.open("https://demoqa.com/upload-download")
     browser.element('[id = downloadButton]').click()
     time.sleep(10)
-    filename_old = os.path.join(download_folder, 'sampleFile.jpeg')
-    filename_new = os.path.join(PROJECT_ROOT_PATH, 'tmp', 'sampleFile.jpeg')
-    new_location = shutil.move(filename_old, filename_new)
-    downloaded_file_size = os.path.getsize(new_location)
+    filename = os.path.join(download_folder, 'sampleFile.jpeg')
+    downloaded_file_size = os.path.getsize(filename)
     assert downloaded_file_size == 4096
 
 
 def test_add_files_to_zip():
-    PROJECT_ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-    files_to_zip = os.path.join(PROJECT_ROOT_PATH, 'resources')
+    project_root_path = os.path.dirname(os.path.abspath(__file__))
+    files_to_zip = os.path.join(project_root_path, 'resources')
     files_to_zip_list = os.listdir(files_to_zip)
     with zipfile.ZipFile('test.zip', mode='w', compression=zipfile.ZIP_DEFLATED) as zf:
         for file in files_to_zip_list:

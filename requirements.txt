@@ -4,6 +4,3 @@ selene==2.0.0rc2
 xlrd==2.0.1
 openpyxl==3.2.0b1
 pypdf==3.8.0
-shell
-pywin32
-shell.py==0.5.3
